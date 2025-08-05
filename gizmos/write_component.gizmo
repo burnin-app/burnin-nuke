@@ -1,0 +1,86 @@
+#! C:/Program Files/Nuke15.0v1/nuke-15.0.1.dll -nx
+version 15.0 v1
+Gizmo {
+ addUserKnob {20 Nyx}
+ addUserKnob {22 Render T "import nuke\nfrom nyx_node.node import Node\nfrom pathlib import Path\n\n\npath = Path(thisNode.knob(\"NodeParentPath\").value())\nnodeType = thisNode.knob(\"NodeType\").value()\nnodeName = thisNode.knob(\"NodeName\").value()\n\nnyx_node = Node(nodeName, path).mutate()\n\n\nthisNode = nuke.thisNode()\noverwrite = thisNode.knob(\"overwrite\").value()\nthumbnailFrame = int(thisNode.knob(\"thumbnailFrame\").value())\n\nif not overwrite:\n\tthisNode.knob(\"UpdateNodeData\").execute()\n\tnyx_node.new_version()\n\tthisNode.knob(\"Render_1\").execute()\n\t#nuke.root()\['frame'].setValue(thumbnailFrame)\n\t#thisNode.knob(\"Render_2\").execute()\n\n\t# Assuming 'Group1' is the name of your Group node\n\tgroup_node = nuke.thisGroup()\n\tif group_node and group_node.Class() == 'Group':\n\t\tchildren_nodes = group_node.nodes()\n\t\tfor child_node in children_nodes:\n\t\t\tif child_node.name() == \"WriteThumbnail\":\n\t\t\t\tnuke.execute(child_node, 1001,1001,1)\n\nelse:\n\tthisNode.knob(\"Render_1\").execute()\n\tnuke.root()\['frame'].setValue(thumbnailFrame)\n\tthisNode.knob(\"Render_2\").execute()\n" +STARTLINE}
+ addUserKnob {6 overwrite l override -STARTLINE}
+ addUserKnob {2 NodeParentPath}
+ NodeParentPath z:/roots/shows/workbench/sequences/dev/dev_1010/renders
+ addUserKnob {4 NodeType M {NodeComponent NodeContent Node ""}}
+ addUserKnob {1 NodeName}
+ NodeName animatics
+ addUserKnob {22 UpdateNodeData T "import nuke\nfrom pathlib import Path\nfrom nyx_node.node import Node\nthisNode = nuke.thisNode()\npath = Path(thisNode.knob(\"NodeParentPath\").value())\nnodeType = thisNode.knob(\"NodeType\").value()\nnodeName = thisNode.knob(\"NodeName\").value()\n\nnyx_node = Node(nodeName, path).mutate()\nnew_version_data = nyx_node.next_version_data()\n\n# SET PATH\nfile_type = thisNode.knob(\"file_type\").value()\nif file_type == \"NodeComponent\":\n\tfile_path_base = new_version_data\['new_version_path'] \n\n\tfile_path = str(file_path_base  / (\"render.####.\" + file_type))\n\tfile_path = file_path.replace(\"\\\\\", \"/\")\n\tthisNode.knob(\"file\").setValue(file_path)\n\n\tthumbnailFrame = thisNode.knob(\"thumbnailFrame\").value()\n\tthumbnailPath = str(file_path_base / (\"thumbnail.jpeg\"))\n\tthumbnailPath = thumbnailPath.replace(\"\\\\\", \"/\")\n\tthisNode.knob(\"file_thumbnail\").setValue(thumbnailPath)\n\n" +STARTLINE}
+ addUserKnob {26 "" +STARTLINE}
+ addUserKnob {41 file T WriteMain.file}
+ addUserKnob {41 file_type l "file type" T WriteMain.file_type}
+ addUserKnob {41 Render_1 l WriteRender T WriteMain.Render}
+ addUserKnob {20 group n 1}
+ addUserKnob {41 file_thumbnail l file T WriteThumbnail.file}
+ addUserKnob {3 thumbnailFrame}
+ thumbnailFrame {1001}
+ addUserKnob {41 Render_2 l Render T WriteThumbnail.Render}
+ addUserKnob {20 endGroup n -1}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos -175
+  ypos -303
+ }
+ Dot {
+  name Dot1
+  xpos -142
+  ypos -238
+ }
+ Write {
+  file z:/roots/shows/workbench/sequences/dev/dev_1010/renders/animatics/v025/render.####.jpeg
+  file_type jpeg
+  checkHashOnRead false
+  version 22
+  ocioColorspace scene_linear
+  display ACES
+  view sRGB
+  name WriteMain
+  selected true
+  xpos -175
+  ypos -176
+ }
+set N93962800 [stack 0]
+ Viewer {
+  frame 1001
+  frame_range 1-100
+  monitorOutOutputTransform rec709
+  name Viewer1
+  xpos -319
+  ypos 14
+ }
+push $N93962800
+ Output {
+  name Output1
+  xpos -175
+  ypos -25
+ }
+push $N93962800
+ Reformat {
+  format "150 150 0 0 150 150 1 thumbnail"
+  resize fill
+  name Reformat1
+  xpos -51
+  ypos -194
+  addUserKnob {20 User}
+  addUserKnob {26 text}
+ }
+ Write {
+  file z:/roots/shows/workbench/sequences/dev/dev_1010/renders/animatics/v025/thumbnail.jpeg
+  file_type jpeg
+  _jpeg_quality 0.355
+  checkHashOnRead false
+  version 16
+  ocioColorspace scene_linear
+  display ACES
+  view sRGB
+  name WriteThumbnail
+  xpos -51
+  ypos -158
+ }
+end_group
