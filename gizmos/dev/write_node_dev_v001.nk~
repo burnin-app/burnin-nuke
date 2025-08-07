@@ -1,0 +1,111 @@
+#! C:/Program Files/Nuke16.0v4/nuke-16.0.4.dll -nx
+#write_info Write1 file:"" format:"2048 1556 1" chans:":" framerange:"1 100" fps:"0" colorspace:"default" datatype:"unknown" transfer:"unknown" views:"main" colorManagement:"Nuke"
+version 16.0 v4
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="0" y="0" w="2559" h="1410" screen="0">
+        <splitter orientation="1">
+            <split size="40"/>
+            <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                <page id="Toolbar.1"/>
+            </dock>
+            <split size="1896" stretch="1"/>
+            <splitter orientation="2">
+                <split size="588"/>
+                <dock id="" activePageId="Viewer.1">
+                    <page id="Viewer.1"/>
+                </dock>
+                <split size="779"/>
+                <splitter orientation="1">
+                    <split size="946"/>
+                    <dock id="" activePageId="DAG.1" focus="true">
+                        <page id="DAG.1"/>
+                        <page id="Curve Editor.1"/>
+                        <page id="DopeSheet.1"/>
+                    </dock>
+                    <split size="946"/>
+                    <dock id="" activePageId="uk.co.thefoundry.scripteditor.1">
+                        <page id="uk.co.thefoundry.scripteditor.1"/>
+                    </dock>
+                </splitter>
+            </splitter>
+            <split size="615"/>
+            <dock id="" activePageId="Properties.1">
+                <page id="Properties.1"/>
+                <page id="uk.co.thefoundry.backgroundrenderview.1"/>
+                <page id="Scenegraph.1"/>
+            </dock>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name Z:/burnin/burnin-nuke/gizmos/dev/write_node_dev_v001.nk
+ frame 52
+ format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+ colorManagement Nuke
+ workingSpaceLUT linear
+ monitorLut sRGB
+ monitorOutLUT rec709
+ int8Lut sRGB
+ int16Lut sRGB
+ logLut Cineon
+ floatLut linear
+}
+Write {
+ inputs 0
+ ocioColorspace scene_linear
+ display default
+ view sRGB
+ name Write1
+ xpos -109
+ ypos -30
+}
+Group {
+ name Group1
+ xpos -109
+ ypos 37
+ addUserKnob {20 BurninWrite t "\t"}
+ addUserKnob {22 Render T "print('hello')\nimport nuke \nthisNode = nuke.thisNode()\npath=thisNode.knob(\"string\").value()\nprint(path)" +STARTLINE}
+ addUserKnob {1 component_path l "Component Path"}
+ component_path sadf
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 0
+ }
+ Output {
+  name Output1
+  xpos 0
+  ypos 300
+ }
+end_group
+Viewer {
+ frame_range 1-100
+ monitorOutNDISenderName "Nuke - write_node_dev_v001 - Viewer1"
+ monitorOutOutputTransform rec709
+ name Viewer1
+ xpos -109
+ ypos 110
+}
+NoOp {
+ inputs 0
+ name NoOp1
+ xpos -470
+ ypos -35
+}
+write_component {
+ inputs 0
+ name write_component1
+ xpos -257
+ ypos -20
+ NodeParentPath z:/roots/shows/workbench/sequences/dev/dev_1010/renders
+ NodeName animatics
+ file z:/roots/shows/workbench/sequences/dev/dev_1010/renders/animatics/v025/render.####.jpeg
+ group 1
+ file_thumbnail z:/roots/shows/workbench/sequences/dev/dev_1010/renders/animatics/v025/thumbnail.jpeg
+}
