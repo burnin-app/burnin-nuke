@@ -11,9 +11,7 @@ from pathlib import Path
 import os
 root_id = os.getenv("BURNIN_ROOT_ID")
 print(root_id)
-from burnin.api import APIClient, BurninClient
-
-client = APIClient(port=4646)
+from burnin.api import BurninClient
 
 delimeter = "/"
 if os.name == 'nt':
@@ -32,6 +30,11 @@ def buildFilePath(include_file_name: bool = False, component_path: str = None):
 
     if component_path.startswith('/'):
         component_path = component_path[1:]
+    
+    if component_path.startswith('\\'):
+        component_path = component_path[1:]
+    
+    
     version_number = node.knob("version").value()
 
     if include_file_name:
@@ -54,8 +57,8 @@ def buildFilePath(include_file_name: bool = False, component_path: str = None):
 
 def BurninWriteV1():
     thisNode = nuke.selectedNode()
-    input_node = thisNode.input(0)
-    node_class = input_node.Class()
+    write_node = thisNode.input(0)
+    node_class = write_node.Class()
 
     if node_class != "Write":
         nuke.message("❌ Upstream node should be a Write Node")
@@ -65,7 +68,7 @@ def BurninWriteV1():
     component_id = Thing.from_ids(root_id, component_path + "/v000")
     version_node = Node.new_version(component_id, FileType.Image)
 
-    burnin_client = BurninClient(client=client)
+    burnin_client = BurninClient(nuke._burnin_client)
     
     try:
         version_node: Node = burnin_client.create_or_update_component_version(version_node)
@@ -74,11 +77,39 @@ def BurninWriteV1():
         thisNode.knob("version").setValue(version_number)
 
         file_path = buildFilePath(include_file_name=False)
-        thisNode.knob("dir_path").setValue(str(file_path))
         print(file_path)
+        file_path = str(file_path) + "\\render." + "####.exr"
+
+        file_path = file_path.replace("\\", "/")
+        thisNode.knob("dir_path").setValue(file_path)
+        print(file_path)
+
+        ## set wirite node path
+        write_node.knob("file").setValue(str(file_path))
+        write_node.knob("file_type").setValue(3) # set exr
+
+
+        wace = thisNode.knob("write_ACES_compliant_EXR").value()
+        write_node.knob("write_ACES_compliant_EXR").setValue(wace)
+
+        limit_range = thisNode.knob("limit_to_range").value()
+        write_node.knob("use_limit").setValue(limit_range)
+        
+        start = 0
+        end = 0
+        if limit_range:
+            #start = thisNode.knob("start").value()
+            start = thisNode.knob("start").value()
+            write_node.knob("first").setValue(start)
+            
+            end = thisNode.knob("end").value()
+            write_node.knob("last").setValue(end)
+
 
         thisNode.knob("status").setValue(VersionStatus.Incomplete.value)
         file_type = ".exr"
+
+        nuke.execute(write_node, 10,20,1)
 
 
         version_type: Version = version_node.node_type.data

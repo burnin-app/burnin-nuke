@@ -1,5 +1,5 @@
 #! C:/Program Files/Nuke16.0v4/nuke-16.0.4.dll -nx
-#write_info Write1 file:"" format:"2048 1556 1" chans:":" framerange:"1 100" fps:"0" colorspace:"default" datatype:"unknown" transfer:"unknown" views:"main" colorManagement:"Nuke"
+#write_info Write1 file:"Z:/temp_root/MainRoot/Render/Dance/v057/render.%04d.exr" format:"2048 1556 1" chans:":rgba.red:rgba.green:rgba.blue:" framerange:"1 100" fps:"0" colorspace:"default (linear)" datatype:"16 bit half" transfer:"unknown" views:"main" colorManagement:"Nuke"
 version 16.0 v4
 define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 <layout version="1.0">
@@ -11,11 +11,11 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
             </dock>
             <split size="1896" stretch="1"/>
             <splitter orientation="2">
-                <split size="537"/>
+                <split size="439"/>
                 <dock id="" activePageId="Viewer.1">
                     <page id="Viewer.1"/>
                 </dock>
-                <split size="830"/>
+                <split size="928"/>
                 <splitter orientation="1">
                     <split size="946"/>
                     <dock id="" activePageId="DAG.1" focus="true">
@@ -41,7 +41,7 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 }
 Root {
  inputs 0
- name Z:/burnin/burnin-nuke/gizmos/dev/write_node_dev_v001.nk
+ name Z:/burnin/python/burnin-nuke/gizmos/dev/write_node_dev_v001.nk
  frame 52
  format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
  proxy_type scale
@@ -55,8 +55,19 @@ Root {
  logLut Cineon
  floatLut linear
 }
-Write {
+CheckerBoard2 {
  inputs 0
+ name CheckerBoard1
+ xpos -109
+ ypos -162
+}
+Write {
+ file Z:/temp_root/MainRoot/Render/Dance/v057/render.####.exr
+ file_type exr
+ first_part rgba
+ last 20
+ checkHashOnRead false
+ version 23
  ocioColorspace scene_linear
  display default
  view sRGB
@@ -64,20 +75,36 @@ Write {
  xpos -109
  ypos -30
 }
+set N6fc57700 [stack 0]
+Viewer {
+ frame_range 1-100
+ monitorOutNDISenderName "Nuke - write_node_dev_v001 - Viewer1"
+ monitorOutOutputTransform rec709
+ name Viewer1
+ xpos -109
+ ypos 110
+}
+push $N6fc57700
 Group {
  name Group1
  xpos -109
- ypos 37
+ ypos 40
  addUserKnob {20 BurninWrite t "\t"}
  addUserKnob {22 Render T "print('hello')\nimport nuke \nthisNode = nuke.thisNode()\npath=thisNode.knob(\"string\").value()\nprint(path)" +STARTLINE}
  addUserKnob {1 component_path l "Component Path"}
- component_path @/Node1:Helloer/checker
+ component_path @/show:Render/Dance
  addUserKnob {1 version l Version}
- version v024
+ version v057
  addUserKnob {2 dir_path l "Directory Path"}
- dir_path "X:\\dev_root\\Tester\\Helloer\\checker\\v024"
+ dir_path Z:/temp_root/MainRoot/Render/Dance/v057/render.####.exr
  addUserKnob {1 status l Status}
  status Incomplete
+ addUserKnob {6 write_ACES_compliant_EXR l "write ACES compliant EXR" +STARTLINE}
+ addUserKnob {6 limit_to_range l "limit to range" +STARTLINE}
+ addUserKnob {3 start}
+ start 1
+ addUserKnob {3 end}
+ end 20
 }
  Input {
   inputs 0
@@ -90,28 +117,3 @@ Group {
   ypos 300
  }
 end_group
-Viewer {
- frame_range 1-100
- monitorOutNDISenderName "Nuke - write_node_dev_v001 - Viewer1"
- monitorOutOutputTransform rec709
- name Viewer1
- xpos -109
- ypos 110
-}
-NoOp {
- inputs 0
- name NoOp1
- xpos -470
- ypos -35
-}
-write_component {
- inputs 0
- name write_component1
- xpos -257
- ypos -20
- NodeParentPath z:/roots/shows/workbench/sequences/dev/dev_1010/renders
- NodeName animatics
- file z:/roots/shows/workbench/sequences/dev/dev_1010/renders/animatics/v025/render.####.jpeg
- group 1
- file_thumbnail z:/roots/shows/workbench/sequences/dev/dev_1010/renders/animatics/v025/thumbnail.jpeg
-}

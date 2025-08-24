@@ -11,11 +11,11 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
             </dock>
             <split size="1896" stretch="1"/>
             <splitter orientation="2">
-                <split size="588"/>
+                <split size="550"/>
                 <dock id="" activePageId="Viewer.1">
                     <page id="Viewer.1"/>
                 </dock>
-                <split size="779"/>
+                <split size="817"/>
                 <splitter orientation="1">
                     <split size="946"/>
                     <dock id="" activePageId="DAG.1" focus="true">
@@ -41,7 +41,7 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 }
 Root {
  inputs 0
- name Z:/burnin/burnin-nuke/gizmos/dev/write_node_dev_v001.nk
+ name Z:/burnin/python/burnin-nuke/gizmos/dev/write_node_dev_v001.nk
  frame 52
  format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
  proxy_type scale
@@ -71,7 +71,13 @@ Group {
  addUserKnob {20 BurninWrite t "\t"}
  addUserKnob {22 Render T "print('hello')\nimport nuke \nthisNode = nuke.thisNode()\npath=thisNode.knob(\"string\").value()\nprint(path)" +STARTLINE}
  addUserKnob {1 component_path l "Component Path"}
- component_path sadf
+ component_path @/show:Render/Dance
+ addUserKnob {1 version l Version}
+ version v002
+ addUserKnob {2 dir_path l "Directory Path"}
+ dir_path "Z:\\Render\\Dance\\v002"
+ addUserKnob {1 status l Status}
+ status Incomplete
 }
  Input {
   inputs 0
