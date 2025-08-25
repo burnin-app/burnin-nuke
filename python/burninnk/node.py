@@ -1,6 +1,7 @@
 import nuke
 from burnin.api import BurninClient
 from burnin.entity.surreal import Thing
+from burnin.entity.media import FfmpegCMD
 from burnin.entity.filetype import FileType
 from burnin.entity.version import Version, VersionStatus
 from burnin.entity.node import Node
@@ -80,6 +81,15 @@ def BurninWriteV1():
         print(file_path)
         file_path = str(file_path) + "\\render." + "####.exr"
 
+        image_file_path = file_path.replace("####", "0010")
+        print(image_file_path)
+
+        output_file_path = image_file_path.replace("render.0010.exr", "thumbnail.png")
+        print(output_file_path)
+    
+        ffmpeg = FfmpegCMD(image_file_path, output_file_path)
+        print(type(ffmpeg))
+
         file_path = file_path.replace("\\", "/")
         thisNode.knob("dir_path").setValue(file_path)
         print(file_path)
@@ -109,7 +119,7 @@ def BurninWriteV1():
         thisNode.knob("status").setValue(VersionStatus.Incomplete.value)
         file_type = ".exr"
 
-        nuke.execute(write_node, 10,20,1)
+        nuke.execute(write_node, 10,11,1)
 
 
         version_type: Version = version_node.node_type.data
@@ -131,6 +141,17 @@ def BurninWriteV1():
         version_node_type: Version = version_node.node_type.data
         print(version_node)
         print(version_node_type)
+        
+        print(ffmpeg)
+        #burnin_client.generate_thumbnail_from_image(ffmpeg)
+
+        # Using positional arguments (recommended)
+        ffmpeg_cmd = FfmpegCMD(
+            Path(image_file_path),
+            Path(output_file_path)
+        )
+
+        burnin_client.generate_thumbnail_from_image(ffmpeg_cmd)
 
     except Exception as e:
         print(str(e))
