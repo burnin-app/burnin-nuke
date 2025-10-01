@@ -1,0 +1,31 @@
+#! C:/Program Files/Nuke16.0v4/nuke-16.0.4.dll -nx
+version 16.0 v4
+Gizmo {
+ addUserKnob {20 BurninWrite t "\t"}
+ addUserKnob {22 Render T "import nuke\nfrom burnin.api import BurninClient\nfrom burnin.entity.surreal import Thing\nfrom burnin.entity.media import FfmpegCMD\nfrom burnin.entity.filetype import FileType\nfrom burnin.entity.version import Version, VersionStatus\nfrom burnin.entity.node import Node\nfrom burnin.entity.utils import parse_node_path\nfrom burnin.entity.utils import TypeWrapper\nfrom pathlib import Path\n\nimport os\nroot_id = os.getenv(\"BURNIN_ROOT_ID\")\nprint(root_id)\nfrom burnin.api import BurninClient\n\ndelimeter = \"/\"\nif os.name == 'nt':\n    delimeter = \"\\\\\"\n\n\ndef buildFilePath(include_file_name: bool = False, component_path: str = None):\n    #node = nuke.selectedNode()\n    node = nuke.thisNode()\n    root_path = os.getenv(\"BURNIN_ROOT_PATH\")\n    root_name = os.getenv(\"BURNIN_ROOT_NAME\")\n\n    if component_path is None:\n        component_path = node.knob(\"component_path\").value()\n\n    component_path = parse_node_path(component_path)\n\n    if component_path.startswith('/'):\n        component_path = component_path\[1:]\n    \n    if component_path.startswith('\\\\'):\n        component_path = component_path\[1:]\n    \n    \n    version_number = node.knob(\"version\").value()\n\n    if include_file_name:\n        file_type = node.knob(\"file_type\").value()\n\n        frame_expression = \"\" \n        # check if its time dependent\n        if node.knob(\"timedependent\").value() == 1:\n            frame_expression = \".####\"\n\n        file_name = component_path.split(\"/\")\[-1] + \"_\" + version_number + frame_expression + file_type\n\n    file_path = Path(root_path) / root_name / component_path / version_number\n    if include_file_name:\n        return file_path / file_name\n    else:\n        return file_path\n    \n\n\ndef BurninWriteV1():\n    #thisNode = nuke.selectedNode()\n    thisNode = nuke.thisNode()\n    write_node = thisNode.input(0)\n    node_class = write_node.Class()\n\n    if node_class != \"Write\":\n        nuke.message(\"❌ Upstream node should be a Write Node\")\n        return None\n\n    component_path = thisNode.knob(\"component_path\").value()\n    component_id = Thing.from_ids(root_id, component_path + \"/v000\")\n    version_node = Node.new_version(component_id, FileType.Image)\n\n    burnin_client = BurninClient(nuke._burnin_client)\n    \n    try:\n        version_node: Node = burnin_client.create_or_update_component_version(version_node)\n        version_node_id = version_node.get_node_id_str()\n        version_number = version_node_id.split(\"/\")\[-1]\n        thisNode.knob(\"version\").setValue(version_number)\n\n        file_path = buildFilePath(include_file_name=False)\n        print(file_path)\n        file_path = str(file_path) + \"\\\\render.\" + \"####.exr\"\n\n        image_file_path = file_path.replace(\"####\", \"%04d\")\n        print(image_file_path)\n\n        output_file_path = image_file_path.replace(\"render.%04d.exr\", \"render.mp4\")\n        print(output_file_path)\n    \n        ffmpeg = FfmpegCMD(image_file_path, output_file_path)\n        print(type(ffmpeg))\n\n        file_path = file_path.replace(\"\\\\\", \"/\")\n        thisNode.knob(\"dir_path\").setValue(file_path)\n        print(file_path)\n\n        ## set wirite node path\n        write_node.knob(\"file\").setValue(str(file_path))\n        write_node.knob(\"file_type\").setValue(3) # set exr\n\n\n        wace = thisNode.knob(\"write_ACES_compliant_EXR\").value()\n        write_node.knob(\"write_ACES_compliant_EXR\").setValue(wace)\n\n        limit_range = thisNode.knob(\"limit_to_range\").value()\n        write_node.knob(\"use_limit\").setValue(limit_range)\n        \n        start = 0\n        end = 0\n        if limit_range:\n            #start = thisNode.knob(\"start\").value()\n            start = thisNode.knob(\"start\").value()\n            write_node.knob(\"first\").setValue(start)\n            \n            end = thisNode.knob(\"end\").value()\n            write_node.knob(\"last\").setValue(100)\n\n\n        thisNode.knob(\"status\").setValue(VersionStatus.Incomplete.value)\n        file_type = \".exr\"\n\n        nuke.execute(write_node, 10,100,1)\n\n\n        version_type: Version = version_node.node_type.data\n        version_type.comment = \"test\"\n        version_type.software = \"nuke\"\n        version_type.head_file = 'test.####.exr'\n        version_type.status = VersionStatus.Published\n\n\n        file_type: FileType = version_type.file_type.data\n        file_type.file_name = \"test file.exr\"\n        file_type.file_type = \".exr\"\n\n        version_type.file_type = TypeWrapper(file_type)\n        version_node.node_type = TypeWrapper(version_type)\n        version_node.created_at = None\n\n        version_node = burnin_client.commit_component_version(version_node)\n        version_node_type: Version = version_node.node_type.data\n        print(version_node)\n        print(version_node_type)\n        \n        print(ffmpeg)\n        #burnin_client.generate_thumbnail_from_image(ffmpeg)\n\n        # Using positional arguments (recommended)\n        ffmpeg_cmd = FfmpegCMD(\n            Path(image_file_path),\n            Path(output_file_path)\n        )\n\n        burnin_client.generate_thumbnail_from_image(ffmpeg)\n\n    except Exception as e:\n        print(str(e))\n    #print(component_id)\n\nBurninWriteV1()" +STARTLINE}
+ addUserKnob {1 component_path l "Component Path"}
+ component_path @/show:Re/Test
+ addUserKnob {1 version l Version}
+ version v016
+ addUserKnob {2 dir_path l "Directory Path"}
+ dir_path Z:/temp_root/MainRoot/Re/Test/v016/render.####.exr
+ addUserKnob {1 status l Status}
+ status Incomplete
+ addUserKnob {6 write_ACES_compliant_EXR l "write ACES compliant EXR" +STARTLINE}
+ addUserKnob {6 limit_to_range l "limit to range" +STARTLINE}
+ addUserKnob {3 start}
+ start 1
+ addUserKnob {3 end}
+ end 20
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 0
+ }
+ Output {
+  name Output1
+  xpos 0
+  ypos 300
+ }
+end_group

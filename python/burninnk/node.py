@@ -18,9 +18,12 @@ delimeter = "/"
 if os.name == 'nt':
     delimeter = "\\"
 
+c_node = nuke.selectedNode()
+#c_node = nuke.thisNode()
 
 def buildFilePath(include_file_name: bool = False, component_path: str = None):
-    node = nuke.selectedNode()
+
+    node = c_node
     root_path = os.getenv("BURNIN_ROOT_PATH")
     root_name = os.getenv("BURNIN_ROOT_NAME")
 
@@ -57,7 +60,7 @@ def buildFilePath(include_file_name: bool = False, component_path: str = None):
 
 
 def BurninWriteV1():
-    thisNode = nuke.selectedNode()
+    thisNode = c_node
     write_node = thisNode.input(0)
     node_class = write_node.Class()
 
@@ -77,14 +80,45 @@ def BurninWriteV1():
         version_number = version_node_id.split("/")[-1]
         thisNode.knob("version").setValue(version_number)
 
+        limit_range = thisNode.knob("limit_to_range").value()
+        write_node.knob("use_limit").setValue(limit_range)
+        
+        start = 0
+        end = 0
+        if limit_range:
+            #start = thisNode.knob("start").value()
+            start = thisNode.knob("start").value()
+            write_node.knob("first").setValue(int(start))     
+            
+            end = thisNode.knob("end").value()
+            write_node.knob("last").setValue(int(end))
+
         file_path = buildFilePath(include_file_name=False)
         print(file_path)
-        file_path = str(file_path) + "\\render." + "####.exr"
+        
 
-        image_file_path = file_path.replace("####", "0010")
+        # TODO: need to change this for unix
+        file_path_split = str(file_path).split("\\")
+        file_name = file_path_split[-2] + "_" + file_path_split[-1]
+  
+        
+        if limit_range:
+            file_name_from_path =  file_name + ".####.exr"
+            thumbnail_frame_number = str(int(start)).zfill(4)
+            thumbnail_file_name = file_name + "." + thumbnail_frame_number + ".exr"
+            print("HEY", thumbnail_frame_number)
+        else:
+            file_name_from_path = file_name + ".exr"
+            thumbnail_file_name = file_name_from_path
+        
+        file_path = str(file_path) + "\\" + file_name_from_path
+
+        # for sending into thumbnail path
+        image_file_path = file_path.replace("####", "%04d")
         print(image_file_path)
-
-        output_file_path = image_file_path.replace("render.0010.exr", "thumbnail.png")
+        
+        
+        output_file_path = image_file_path.replace( file_name + ".%04d.exr", "thumbnail.png")
         print(output_file_path)
     
         ffmpeg = FfmpegCMD(image_file_path, output_file_path)
@@ -102,36 +136,37 @@ def BurninWriteV1():
         wace = thisNode.knob("write_ACES_compliant_EXR").value()
         write_node.knob("write_ACES_compliant_EXR").setValue(wace)
 
-        limit_range = thisNode.knob("limit_to_range").value()
-        write_node.knob("use_limit").setValue(limit_range)
         
-        start = 0
-        end = 0
-        if limit_range:
-            #start = thisNode.knob("start").value()
-            start = thisNode.knob("start").value()
-            write_node.knob("first").setValue(start)
-            
-            end = thisNode.knob("end").value()
-            write_node.knob("last").setValue(end)
 
 
         thisNode.knob("status").setValue(VersionStatus.Incomplete.value)
         file_type = ".exr"
+        print("limit range", start, end)
+        nuke.execute(write_node, int(start),int(end),1)
 
-        nuke.execute(write_node, 10,11,1)
 
-
-        version_type: Version = version_node.node_type.data
-        version_type.comment = "test"
+        version_type: Version = version_node.node_type.data 
+        version_type.comment = thisNode.knob("Comment").value()
         version_type.software = "nuke"
-        version_type.head_file = 'test.####.exr'
+        head_file_name = image_file_path.split("/")[0]
+        version_type.head_file = file_name_from_path
         version_type.status = VersionStatus.Published
 
 
         file_type: FileType = version_type.file_type.data
-        file_type.file_name = "test file.exr"
-        file_type.file_type = ".exr"
+        file_type.file_name = file_name_from_path
+        file_type.file_format = ".exr"
+        
+        if limit_range:
+            file_type.time_dependent = True
+            file_type.frame_range = [start, end, 1]
+
+        format = thisNode.format()
+        width = format.width()
+        height = format.height()
+        file_type.resolution = [width, height]
+        file_type.color_space = "ACES"
+
 
         version_type.file_type = TypeWrapper(file_type)
         version_node.node_type = TypeWrapper(version_type)
@@ -151,7 +186,7 @@ def BurninWriteV1():
             Path(output_file_path)
         )
 
-        burnin_client.generate_thumbnail_from_image(ffmpeg_cmd)
+        burnin_client.generate_thumbnail_from_image(ffmpeg)
 
     except Exception as e:
         print(str(e))
