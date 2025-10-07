@@ -114,11 +114,10 @@ def BurninWriteV1():
         file_path = str(file_path) + "\\" + file_name_from_path
 
         # for sending into thumbnail path
-        image_file_path = file_path.replace("####", "%04d")
+        image_file_path = file_path.replace(file_name_from_path, thumbnail_file_name)
         print(image_file_path)
-        
-        
-        output_file_path = image_file_path.replace( file_name + ".%04d.exr", "thumbnail.png")
+
+        output_file_path = image_file_path.replace( thumbnail_file_name, "thumbnail.png")
         print(output_file_path)
     
         ffmpeg = FfmpegCMD(image_file_path, output_file_path)
@@ -178,14 +177,6 @@ def BurninWriteV1():
         print(version_node_type)
         
         print(ffmpeg)
-        #burnin_client.generate_thumbnail_from_image(ffmpeg)
-
-        # Using positional arguments (recommended)
-        ffmpeg_cmd = FfmpegCMD(
-            Path(image_file_path),
-            Path(output_file_path)
-        )
-
         burnin_client.generate_thumbnail_from_image(ffmpeg)
 
     except Exception as e:
