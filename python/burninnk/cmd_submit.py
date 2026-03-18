@@ -8,20 +8,14 @@ from burnin.entity.media import FfmpegCMD
 from burnin.entity.node import Node
 from burnin.entity.queue import CmdSubmit
 from burnin.entity.surreal import Thing
-from burnin.entity.utils import (
-    TypeWrapper,
-    node_name_from_component_path,
-    parse_node_path,
-)
-from burnin.entity.version import Version, VersionStatus
+from burnin.entity.utils import node_name_from_component_path
+from burnin.entity.version import VersionStatus
 from burninnk.utils import buildFilePath
 
 
 def submit_render_job():
     thisNode = nuke.thisNode()
     root_id = os.getenv("BURNIN_ROOT_ID")
-    root_path = os.getenv("BURNIN_ROOT_PATH")
-    root_name = os.getenv("BURNIN_ROOT_NAME")
 
     write_node = thisNode.input(0)
     write_node_name = write_node.name()
@@ -84,7 +78,7 @@ def submit_render_job():
 
         output_file_path = image_file_path.replace(thumbnail_file_name, "thumbnail.png")
 
-        ffmpeg = FfmpegCMD(image_file_path, output_file_path)
+        # ffmpeg = FfmpegCMD(image_file_path, output_file_path)
 
         file_path = file_path.replace("\\", "/")
         thisNode.knob("dir_path").setValue(file_path)
@@ -101,8 +95,9 @@ def submit_render_job():
 
         # save script
         nuke.scriptSave()
-        print(setup_path)
-        nuke.scriptSaveAs(str(setup_path))
+        with open(str(setup_path), "w") as f:
+            f.write(nuke.scriptSaveToString())
+        # nuke.scriptSaveAs(str(setup_path))
 
         stack = os.getenv("BU_STACK")
 
@@ -135,7 +130,7 @@ def submit_render_job():
                 str(setup_path),
             ],
             stack=stack,
-            frame_range=[int(start), int(end)],
+            frame_range=[0, 0, 1],
             user_id=None,
             output_path=str(file_path),
             comment=None,
