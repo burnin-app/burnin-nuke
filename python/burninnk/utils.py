@@ -47,3 +47,26 @@ def buildFilePath(include_file_name: bool = False, component_path: str = None):
         return file_path / file_name
     else:
         return file_path
+
+
+def find_upstream_nodes(start_node, node_class):
+    result = []
+    visited = set()
+
+    def walk(node):
+        if node in visited:
+            return
+        visited.add(node)
+
+        # Check node type
+        if node.Class() == node_class:
+            result.append(node)
+
+        # Traverse inputs
+        for i in range(node.inputs()):
+            upstream = node.input(i)
+            if upstream:
+                walk(upstream)
+
+    walk(start_node)
+    return result

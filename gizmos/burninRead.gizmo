@@ -1,0 +1,31 @@
+#! C:/Program Files/Nuke17.0v1/nuke-17.0.1.dll -nx
+version 17.0 v1
+Gizmo {
+ addUserKnob {20 BurninRead l "Burnin Read"}
+ addUserKnob {4 RootName l "Root Name" M {""}}
+ addUserKnob {1 component_path l "Component Path"}
+ addUserKnob {4 version_type l "Version Type" M {Latest Atop Version}}
+ addUserKnob {1 version l Version -STARTLINE}
+ addUserKnob {22 fetch l Fetch T "import nuke\nimport burninnk.read\nfrom importlib import reload\nreload(burninnk.read)\nfrom burninnk.read import BurninRead\nBurninRead()" +STARTLINE}
+ addUserKnob {6 external_reload l "Allow External Reload" t "If enabled, this node can be reloaded by burnin write node before execution" -STARTLINE}
+ external_reload true
+ addUserKnob {26 "" +STARTLINE}
+ addUserKnob {2 file l File}
+ addUserKnob {1 comment l Comment}
+ addUserKnob {3 start l Start}
+ start 1
+ addUserKnob {3 end l End -STARTLINE}
+ end 1
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 3
+  ypos 227
+ }
+ Output {
+  name Output1
+  xpos 3
+  ypos 300
+ }
+end_group
