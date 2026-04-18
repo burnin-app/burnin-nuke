@@ -8,6 +8,7 @@ from burnin.entity.node import Node
 from burnin.entity.surreal import Thing
 from burnin.entity.utils import buildDirPathFromVersionNode
 from burnin.entity.version import Version
+from burnin.path import build_path_from_node
 
 
 def BurninRead(node=None):
@@ -61,9 +62,7 @@ def BurninRead(node=None):
 
             print("Loading node:", version_node.id.get_id())
 
-            node_file_path = buildDirPathFromVersionNode(
-                version_node, root_path, root_name
-            )
+            node_file_path = build_path_from_node(version_node)
             node_type: Version = version_node.node_type.data
             file_type = node_type.file_type.data
             if isinstance(file_type, Image):

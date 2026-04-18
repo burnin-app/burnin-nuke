@@ -12,6 +12,7 @@ from burnin.entity.utils import (
     node_name_from_component_path,
 )
 from burnin.entity.version import Version, VersionStatus
+from burnin.path import build_path_from_node
 from burninnk.read import BurninRead
 from burninnk.utils import buildFilePath
 
@@ -71,7 +72,7 @@ def BurninWriteV1(run_execute=True, generate_thumbnail=True) -> WriteOutput | No
             end = thisNode.knob("end").value()
             write_node.knob("last").setValue(int(end))
 
-        file_path = buildFilePath(include_file_name=False)
+        file_path = build_path_from_node(version_node)
         output: WriteOutput = WriteOutput(version_node, file_path)
 
         file_name = node_name_from_component_path(version_node.id.id.String)
