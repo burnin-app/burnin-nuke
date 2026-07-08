@@ -21,6 +21,12 @@ burnin_menu.addCommand(
     "nuke.createNode('Read'); nuke.createNode('burninRead'); nuke.connectNodes('Read', 'burninRead')",
 )
 
+# tooltip
+burnin_menu.addCommand(
+    "Burnin Sticky Data",
+    "from burninnk.sticky import create_burnin_sticky_data; create_burnin_sticky_data()",
+)
+
 
 def setup_burnin():
     node = nuke.thisNode()

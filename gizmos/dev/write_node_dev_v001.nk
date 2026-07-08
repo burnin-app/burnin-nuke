@@ -10,11 +10,11 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
             </dock>
             <split size="1896" stretch="1"/>
             <splitter orientation="2">
-                <split size="555"/>
+                <split size="802"/>
                 <dock id="" activePageId="Viewer.1">
                     <page id="Viewer.1"/>
                 </dock>
-                <split size="812"/>
+                <split size="565"/>
                 <splitter orientation="1">
                     <split size="1036"/>
                     <dock id="" activePageId="DAG.1" focus="true">
@@ -41,9 +41,9 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 Root {
  inputs 0
  name Z:/burnin/python/burnin-nuke/gizmos/dev/write_node_dev_v001.nk
- frame 1002
+ frame 1004
  first_frame 1001
- last_frame 1010
+ last_frame 1013
  lock_range true
  format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
  proxy_type scale
@@ -108,7 +108,10 @@ burninRead {
  name burninRead2
  xpos 447
  ypos -72
- ComponentPath ""
+ component_path ""
+ version ""
+ file ""
+ comment ""
 }
 Read {
  inputs 0
@@ -134,115 +137,6 @@ ColorWheel {
  xpos 83
  ypos 25
 }
-set N9f41c500 [stack 0]
-Write {
- file Y:/burnin_root/shows/Workbench/asset/Test/publishes/model/lod200/v058/Workbench_Test_lod200_v058.####.exr
- file_type exr
- first_part rgba
- last 2
- use_limit true
- checkHashOnRead false
- version 101
- ocioColorspace scene_linear
- display "sRGB - Display"
- view "ACES 1.0 - SDR Video"
- name Write1
- xpos 83
- ypos 208
-}
-Group {
- name BurninWrite
- xpos 83
- ypos 262
- addUserKnob {20 BurninWrite t "\t"}
- addUserKnob {22 Render -STARTLINE T "import nuke\nimport burninnk.write\nfrom importlib import reload\nreload(burninnk.write)\nfrom burninnk.write import BurninWriteV1\nBurninWriteV1()"}
- addUserKnob {22 SumbitRender l "Sumbit Render Job" -STARTLINE T "import nuke\nimport burninnk.cmd_submit\nfrom importlib import reload\nreload(burninnk.cmd_submit)\nfrom burninnk.cmd_submit import submit_render_job\nsubmit_render_job()\n"}
- addUserKnob {6 reload_read l "Reload Burnin Reads" t "If checked, it will look for all the burnin read node upstream and reload's the image from server." -STARTLINE}
- reload_read true
- addUserKnob {1 Comment t "Write comment for the current publish"}
- Comment df
- addUserKnob {1 component_path l "Component Path"}
- component_path @/show:Workbench/asset/archetype:Test/publishes/model/lod200
- addUserKnob {1 version l Version}
- version v058
- addUserKnob {2 dir_path l "Directory Path"}
- dir_path Y:/burnin_root/shows/Workbench/asset/Test/publishes/model/lod200/v058/Workbench_Test_lod200_v058.####.exr
- addUserKnob {1 status l Status}
- status Incomplete
- addUserKnob {6 write_ACES_compliant_EXR l "write ACES compliant EXR" +STARTLINE}
- addUserKnob {6 limit_to_range l "limit to range" +STARTLINE}
- limit_to_range true
- addUserKnob {3 start}
- start 1
- addUserKnob {3 end}
- end 2
-}
- Input {
-  inputs 0
-  name Input1
-  xpos 0
- }
- Output {
-  name Output1
-  xpos 0
-  ypos 300
- }
-end_group
-Viewer {
- frame 1002
- frame_range 1001-1010
- monitorOutNDISenderName "NukeX - write_node_dev_v001 - Viewer1"
- monitorOutOutputTransform rec709
- name Viewer1
- xpos 233
- ypos 329
-}
-Read {
- inputs 0
- file_type exr
- file Y:/burnin_root/shows/Workbench/asset/Test/publishes/model/lod200/v055/Workbench_Test_lod200_v055.####.exr
- format "4096 2642 0 0 4096 2642 1 "
- last 2
- origlast 2
- origset true
- version 16
- name Read4
- xpos 233
- ypos -50
-}
-Group {
- name BurninRead
- xpos 233
- ypos 49
- addUserKnob {20 BurninRead l "Burnin Read"}
- addUserKnob {4 RootName l "Root Name" M {""}}
- addUserKnob {1 component_path l "Component Path"}
- addUserKnob {4 version_type l "Version Type" M {Latest Atop Version}}
- addUserKnob {1 version l Version -STARTLINE}
- addUserKnob {22 fetch l Fetch T "import nuke\nimport burninnk.read\nfrom importlib import reload\nreload(burninnk.read)\nfrom burninnk.read import BurninRead\nBurninRead()" +STARTLINE}
- addUserKnob {6 external_reload l "Allow External Reload" t "If enabled, this node can be reloaded by burnin write node before execution" -STARTLINE}
- external_reload true
- addUserKnob {26 "" +STARTLINE}
- addUserKnob {2 file l File}
- addUserKnob {1 comment l Comment}
- addUserKnob {3 start l Start}
- start 1
- addUserKnob {3 end l End -STARTLINE}
- end 1
-}
- Input {
-  inputs 0
-  name Input1
-  xpos 3
-  ypos 227
- }
- Output {
-  name Output1
-  xpos 3
-  ypos 300
- }
-end_group
-push $N9f41c500
 Write {
  file Y:/burnin_root/shows/Workbench/asset/Test/publishes/model/lod200/v061/Workbench_Test_lod200_v061.####.exr
  file_type exr
@@ -250,6 +144,8 @@ Write {
  last 2
  use_limit true
  version 3
+ in_colorspace scene_linear
+ out_colorspace scene_linear
  ocioColorspace scene_linear
  display "sRGB - Display"
  view "ACES 1.0 - SDR Video"
@@ -266,4 +162,140 @@ burninWrite {
  version v061
  dir_path Y:/burnin_root/shows/Workbench/asset/Test/publishes/model/lod200/v061/Workbench_Test_lod200_v061.####.exr
  status Incomplete
+ FrameRangeVariable shot
+}
+Read {
+ inputs 0
+ file_type exr
+ file Y:/burnin_root/shows/Workbench/asset/Test/publishes/model/lod200/v055/Workbench_Test_lod200_v055.####.exr
+ format "4096 2642 0 0 4096 2642 1 "
+ last 2
+ origlast 2
+ origset true
+ version 16
+ name Read4
+ xpos 820
+ ypos -39
+}
+Group {
+ name BurninRead
+ xpos 820
+ ypos 59
+ addUserKnob {20 BurninRead l "Burnin Read"}
+ addUserKnob {4 RootName l "Root Name" M {""}}
+ addUserKnob {1 component_path l "Component Path"}
+ addUserKnob {4 version_type l "Version Type" M {Latest Atop Version}}
+ addUserKnob {1 version l Version -STARTLINE}
+ addUserKnob {22 fetch l Fetch T "import nuke\nimport burninnk.read\nfrom importlib import reload\nreload(burninnk.read)\nfrom burninnk.read import BurninRead\nBurninRead()" +STARTLINE}
+ addUserKnob {6 external_reload l "Allow External Reload" t "If enabled, this node can be reloaded by burnin write node before execution" -STARTLINE}
+ external_reload true
+ addUserKnob {6 AllowExternalVariableChange l "Allow Variable Change" -STARTLINE}
+ AllowExternalVariableChange true
+ addUserKnob {26 ""}
+ addUserKnob {2 file l File}
+ addUserKnob {1 comment l Comment}
+ addUserKnob {3 start l Start}
+ start 1001
+ addUserKnob {3 end l End -STARTLINE}
+ end 1002
+ addUserKnob {22 SetProjectFrameRange l "Set Project Frame Range" -STARTLINE T "import nuke\nimport burninnk.read\nfrom importlib import reload\nreload(burninnk.read)\nfrom burninnk.read import SetProjectFrameRange\nSetProjectFrameRange()"}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 3
+  ypos 227
+ }
+ Output {
+  name Output1
+  xpos 3
+  ypos 300
+ }
+end_group
+Read {
+ inputs 0
+ file_type exr
+ file Y:/burnin_root/shows/Raawadi/sequences/RONE/RONE_0010/publishes/plates/original/v001/Raawadi_RONE_RONE_0010_original_v001.####.exr
+ first 1001
+ last 1013
+ origfirst 1001
+ origlast 1013
+ origset true
+ name Read7
+ tile_color 0xff00ff
+ xpos -372
+ ypos 119
+}
+burninRead {
+ name burninRead1
+ tile_color 0xff00ff
+ xpos -372
+ ypos 205
+ component_path @/show:Raawadi/sequences/seq:RONE/shot:RONE_0010/publishes/plates/original
+ version ""
+ file Y:/burnin_root/shows/Raawadi/sequences/RONE/RONE_0010/publishes/plates/original/v001/Raawadi_RONE_RONE_0010_original_v001.####.exr
+ comment "Ingested from Resolve"
+ end 1013
+}
+Write {
+ file Y:/burnin_root/shows/Workbench/asset/Test/publishes/model/lod200/v058/Workbench_Test_lod200_v058.####.exr
+ file_type exr
+ first_part rgba
+ last 2
+ use_limit true
+ checkHashOnRead false
+ version 101
+ ocioColorspace scene_linear
+ display "sRGB - Display"
+ view "ACES 1.0 - SDR Video"
+ name Write1
+ xpos -372
+ ypos 414
+}
+Group {
+ name BurninWrite
+ xpos -372
+ ypos 469
+ addUserKnob {20 BurninWrite t "\t"}
+ addUserKnob {22 Render -STARTLINE T "import nuke\nimport burninnk.write\nfrom importlib import reload\nreload(burninnk.write)\nfrom burninnk.write import BurninWriteV1\nBurninWriteV1()"}
+ addUserKnob {22 SumbitRender l "Sumbit Render Job" -STARTLINE T "import nuke\nimport burninnk.cmd_submit\nfrom importlib import reload\nreload(burninnk.cmd_submit)\nfrom burninnk.cmd_submit import submit_render_job\nsubmit_render_job()\n"}
+ addUserKnob {6 reload_read l "Reload Burnin Reads" t "If checked, it will look for all the burnin read node upstream and reload's the image from server." -STARTLINE}
+ reload_read true
+ addUserKnob {1 Comment t "Write comment for the current publish"}
+ addUserKnob {1 component_path l "Component Path"}
+ addUserKnob {1 version l Version}
+ addUserKnob {2 dir_path l "Directory Path"}
+ addUserKnob {1 status l Status}
+ status Incomplete
+ addUserKnob {6 write_ACES_compliant_EXR l "write ACES compliant EXR" +STARTLINE}
+ addUserKnob {6 limit_to_range l "limit to range" +STARTLINE}
+ limit_to_range true
+ addUserKnob {3 start}
+ start 1001
+ addUserKnob {3 end -STARTLINE}
+ end 1013
+ addUserKnob {1 FrameRangeVariable l "Frame Range Variable" t "Get Framerange from the variable from the component"}
+ FrameRangeVariable shot
+ addUserKnob {22 UpdateFrameRange l "Update Frame Range" -STARTLINE T "import nuke\nimport burninnk.write\nfrom importlib import reload\nreload(burninnk.write)\nfrom burninnk.write import updateFrameRangeFromVariable\nupdateFrameRangeFromVariable()"}
+ addUserKnob {22 UpdateData T "import nuke\nimport burninnk.write\nfrom importlib import reload\nreload(burninnk.write)\nfrom burninnk.write import match_upstream_variable\nmatch_upstream_variable()\n" +STARTLINE}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 0
+ }
+ Output {
+  name Output1
+  xpos 0
+  ypos 300
+ }
+end_group
+Viewer {
+ frame 1004
+ frame_range 1001-1013
+ monitorOutNDISenderName "NukeX - write_node_dev_v001 - Viewer1"
+ monitorOutOutputTransform rec709
+ name Viewer1
+ xpos -68
+ ypos 583
 }

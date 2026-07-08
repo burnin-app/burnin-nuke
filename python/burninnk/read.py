@@ -6,9 +6,20 @@ from burnin.api import BurninClient
 from burnin.entity.filetype import Image
 from burnin.entity.node import Node
 from burnin.entity.surreal import Thing
-from burnin.entity.utils import buildDirPathFromVersionNode
 from burnin.entity.version import Version
 from burnin.path import build_path_from_node
+from burninnk.ui_utils import enforceFrameRange, setNodeStatusColor
+
+
+def SetProjectFrameRange(node=None):
+    thisNode = nuke.thisNode()
+    if node:
+        thisNode = node
+
+    start_frame = thisNode["start"].value()
+    end_frame = thisNode["end"].value()
+
+    enforceFrameRange(start_frame, end_frame)
 
 
 def BurninRead(node=None):
@@ -38,6 +49,7 @@ def BurninRead(node=None):
 
     burnin_client = BurninClient(nuke._burnin_client)
     component_path = thisNode.knob("component_path").value()
+    # component_path = nuke.tcl("subst", component_path)
     if component_path.endswith("/"):
         component_path = component_path[:-1]
 
@@ -66,19 +78,20 @@ def BurninRead(node=None):
             node_type: Version = version_node.node_type.data
             file_type = node_type.file_type.data
             if isinstance(file_type, Image):
-                file_path = node_file_path / file_type.file_name
-                file_path = file_path.as_posix()
-                read_node["file"].setValue(file_path)
-                thisNode["file"].setValue(file_path)
+                if node_type.head_file:
+                    file_path = node_file_path / node_type.head_file
+                    file_path = file_path.as_posix()
+                    read_node["file"].setValue(file_path)
+                    thisNode["file"].setValue(file_path)
 
-                print("Read Image File: ", file_path)
+                    print("Read Image File: ", file_path)
 
                 if node_type.comment:
                     thisNode["comment"].setValue(node_type.comment)
 
                 if file_type.time_dependent:
                     frame_range = file_type.frame_range
-                    if len(frame_range) == 3:
+                    if frame_range is not None and len(frame_range) == 3:
                         start = int(frame_range[0])
                         end = int(frame_range[1])
                         read_node["first"].setValue(start)
@@ -87,13 +100,24 @@ def BurninRead(node=None):
                         read_node["origlast"].setValue(end)
                         thisNode["start"].setValue(start)
                         thisNode["end"].setValue(end)
+
+                setNodeStatusColor([thisNode, read_node], "success")
             else:
+                setNodeStatusColor([thisNode, read_node], "error")
+                thisNode["file"].setValue("error.exr")
+                read_node["file"].setValue("error.exr")
                 raise Exception(
                     f"Node is not an Image Type: {version_node.node_type.variant_name}"
                 )
 
         except Exception as e:
+            setNodeStatusColor([thisNode, read_node], "error")
+            thisNode["file"].setValue("error.exr")
+            read_node["file"].setValue("error.exr")
             print(e)
 
     except Exception as e:
+        setNodeStatusColor([thisNode, read_node], "error")
+        thisNode["file"].setValue("error.exr")
+        read_node["file"].setValue("error.exr")
         print(e)

@@ -12,9 +12,57 @@ from burnin.entity.utils import (
     node_name_from_component_path,
 )
 from burnin.entity.version import Version, VersionStatus
-from burnin.path import build_path_from_node
-from burninnk.read import BurninRead
-from burninnk.utils import buildFilePath
+from burnin.path import (
+    build_path_from_node,
+    get_path_to_variable,
+    get_path_variable_values_to_dict,
+    update_path_variables,
+)
+from burninnk.read import BurninRead, SetProjectFrameRange
+from burninnk.utils import find_upstream_nodes
+
+
+def updateFrameRangeFromVariable():
+    thisNode = nuke.thisNode()
+    component_path = thisNode["component_path"].value()
+    shot_variable = thisNode["FrameRangeVariable"].value()
+
+    shot_path = get_path_to_variable(component_path, shot_variable)
+    print(shot_path, "SHOT PATH")
+    root_id = os.getenv("BURNIN_ROOT_ID")
+
+    if root_id:
+        shot_id = Thing.from_ids(root_id, shot_path)
+        burnin_client = BurninClient(nuke._burnin_client)
+
+        try:
+            version_node: Node = burnin_client.get_node_by_id(shot_id)
+            frame_range = version_node.get_attribute_value("Frame Range")
+            if frame_range:
+                start = frame_range[0]
+                end = frame_range[1]
+
+                thisNode["start"].setValue(float(start))
+                thisNode["end"].setValue(float(end))
+
+        except Exception as e:
+            print(str(e))
+
+
+def match_upstream_variable():
+    thisNode = nuke.thisNode()
+    component_path = thisNode["component_path"].value()
+    variables = get_path_variable_values_to_dict(component_path)
+    burnin_reads = find_upstream_nodes(thisNode, "burninRead")
+    for read in burnin_reads:
+        update_variable = read.knob("AllowExternalVariableChange").value()
+        if update_variable:
+            read_component_path = read.knob("component_path").value()
+            updated_path = update_path_variables(read_component_path, variables)
+            read["component_path"].setValue(updated_path)
+            BurninRead(read)
+            updateFrameRangeFromVariable()
+            SetProjectFrameRange()
 
 
 class WriteOutput:
@@ -132,7 +180,7 @@ def BurninWriteV1(run_execute=True, generate_thumbnail=True) -> WriteOutput | No
 
         file_type: Image = version_type.file_type.data
         file_type.file_name = file_name_from_path
-        file_type.file_format = ".exr"
+        file_type.file_format = "exr"
 
         if limit_range:
             file_type.time_dependent = True
@@ -142,7 +190,7 @@ def BurninWriteV1(run_execute=True, generate_thumbnail=True) -> WriteOutput | No
         width = format.width()
         height = format.height()
         file_type.resolution = (int(width), int(height))
-        file_type.color_space = "ACES"
+        file_type.color_space = "ACEScg"
 
         version_type.file_type = TypeWrapper(file_type)
         version_node.node_type = TypeWrapper(version_type)

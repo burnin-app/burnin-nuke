@@ -9,13 +9,16 @@ Gizmo {
  addUserKnob {22 fetch l Fetch T "import nuke\nimport burninnk.read\nfrom importlib import reload\nreload(burninnk.read)\nfrom burninnk.read import BurninRead\nBurninRead()" +STARTLINE}
  addUserKnob {6 external_reload l "Allow External Reload" t "If enabled, this node can be reloaded by burnin write node before execution" -STARTLINE}
  external_reload true
- addUserKnob {26 "" +STARTLINE}
+ addUserKnob {6 AllowExternalVariableChange l "Allow Variable Change" -STARTLINE}
+ AllowExternalVariableChange true
+ addUserKnob {26 ""}
  addUserKnob {2 file l File}
  addUserKnob {1 comment l Comment}
  addUserKnob {3 start l Start}
- start 1
+ start 1001
  addUserKnob {3 end l End -STARTLINE}
- end 1
+ end 1002
+ addUserKnob {22 SetProjectFrameRange l "Set Project Frame Range" -STARTLINE T "import nuke\nimport burninnk.read\nfrom importlib import reload\nreload(burninnk.read)\nfrom burninnk.read import SetProjectFrameRange\nSetProjectFrameRange()"}
 }
  Input {
   inputs 0

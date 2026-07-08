@@ -7,22 +7,22 @@ Gizmo {
  addUserKnob {6 reload_read l "Reload Burnin Reads" t "If checked, it will look for all the burnin read node upstream and reload's the image from server." -STARTLINE}
  reload_read true
  addUserKnob {1 Comment t "Write comment for the current publish"}
- Comment df
  addUserKnob {1 component_path l "Component Path"}
- component_path @/show:Workbench/asset/archetype:Test/publishes/model/lod200
  addUserKnob {1 version l Version}
- version v058
  addUserKnob {2 dir_path l "Directory Path"}
- dir_path Y:/burnin_root/shows/Workbench/asset/Test/publishes/model/lod200/v058/Workbench_Test_lod200_v058.####.exr
  addUserKnob {1 status l Status}
  status Incomplete
  addUserKnob {6 write_ACES_compliant_EXR l "write ACES compliant EXR" +STARTLINE}
  addUserKnob {6 limit_to_range l "limit to range" +STARTLINE}
  limit_to_range true
  addUserKnob {3 start}
- start 1
- addUserKnob {3 end}
- end 2
+ start 1001
+ addUserKnob {3 end -STARTLINE}
+ end 1013
+ addUserKnob {1 FrameRangeVariable l "Frame Range Variable" t "Get Framerange from the variable from the component"}
+ FrameRangeVariable shot
+ addUserKnob {22 UpdateFrameRange l "Update Frame Range" -STARTLINE T "import nuke\nimport burninnk.write\nfrom importlib import reload\nreload(burninnk.write)\nfrom burninnk.write import updateFrameRangeFromVariable\nupdateFrameRangeFromVariable()"}
+ addUserKnob {22 UpdateData T "import nuke\nimport burninnk.write\nfrom importlib import reload\nreload(burninnk.write)\nfrom burninnk.write import match_upstream_variable\nmatch_upstream_variable()\n" +STARTLINE}
 }
  Input {
   inputs 0
